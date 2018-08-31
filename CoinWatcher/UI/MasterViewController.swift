@@ -14,11 +14,13 @@ final class MasterViewController: UITableViewController {
         case back, forward
     }
 
+    var coinFetchWorker: CoinFetchWorker!
     var coinData = [FetchedCoin]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        coinData = getCoindata()
+        refreshControl?.beginRefreshing()
+        loadData()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -58,6 +60,29 @@ final class MasterViewController: UITableViewController {
         self.showDetailViewController(controller, sender: self)
     }
     
+    // MARK: - Actions
+    
+    @IBAction private func refresh() {
+        loadData()
+    }
+    
+    // MARK: - Private functions
+    
+    private func loadData() {
+        coinFetchWorker.fetchCoins { [unowned self] result in
+            switch result {
+            case .error(let error):
+                self.presentError(error)
+            case .success(let coins):
+                self.coinData = coins
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+                }
+            }
+        }
+    }
+
     private func navigateDetail(_ detailVC: DetailViewController, direction: DetailNavigationDirection) {
         guard var selectedIndexPath = self.tableView.indexPathForSelectedRow else { return }
         switch direction {
@@ -73,19 +98,9 @@ final class MasterViewController: UITableViewController {
         detailVC.canGoBack = selectedIndexPath.row > 0
         detailVC.canGoForward = selectedIndexPath.row < coinData.count - 1
     }
-    
-    // MARK: - Data
-    
-    @available(iOS, deprecated: 11.2)
-    func getCoindata() -> [FetchedCoin] {
-        // Network request for data
-        let url = URL(string: "https://api.coinmarketcap.com/v1/ticker/?limit=25&convert=CAD")!
-        let request = URLRequest(url: url)
-        var response: URLResponse?
-        let resultData = try! NSURLConnection.sendSynchronousRequest(request, returning: &response)
-        return try! JSONDecoder().decode([FetchedCoin].self, from: resultData)
-    }
 }
+
+// MARK: - MasterCell
 
 final class MasterCell: UITableViewCell {
     static let identifier = String(describing: MasterCell.self)

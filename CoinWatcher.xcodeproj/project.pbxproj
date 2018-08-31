@@ -10,6 +10,10 @@
 		498B2D212139BA3B004CF5ED /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 498B2D1F2139BA3B004CF5ED /* Main.storyboard */; };
 		498D2DA52139DCA700D32391 /* SwinjectStoryboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D2DA42139DCA700D32391 /* SwinjectStoryboard.swift */; };
 		498D2DA72139DCB600D32391 /* Decimal+NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D2DA62139DCB600D32391 /* Decimal+NumberFormatter.swift */; };
+		498D2DAA2139DD8900D32391 /* CoinFetchWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D2DA92139DD8900D32391 /* CoinFetchWorker.swift */; };
+		498D2DAC2139DD9C00D32391 /* CoinPersistenceWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D2DAB2139DD9C00D32391 /* CoinPersistenceWorker.swift */; };
+		498D2DAF2139DEBB00D32391 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D2DAE2139DEBB00D32391 /* Result.swift */; };
+		498D2DB12139E10400D32391 /* UIViewController+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D2DB02139E10400D32391 /* UIViewController+Error.swift */; };
 		49F75B762139C0DB00392A21 /* Coin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F75B752139C0DB00392A21 /* Coin.swift */; };
 		4C6C8857EA3D27094535A26C /* Pods_CoinWatcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D75DD71E2A05D399016BA667 /* Pods_CoinWatcher.framework */; };
 		5D7E9E6220652D49006EA36E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7E9E6120652D49006EA36E /* AppDelegate.swift */; };
@@ -43,6 +47,10 @@
 		498B2D202139BA3B004CF5ED /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		498D2DA42139DCA700D32391 /* SwinjectStoryboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwinjectStoryboard.swift; sourceTree = "<group>"; };
 		498D2DA62139DCB600D32391 /* Decimal+NumberFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+NumberFormatter.swift"; sourceTree = "<group>"; };
+		498D2DA92139DD8900D32391 /* CoinFetchWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinFetchWorker.swift; sourceTree = "<group>"; };
+		498D2DAB2139DD9C00D32391 /* CoinPersistenceWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinPersistenceWorker.swift; sourceTree = "<group>"; };
+		498D2DAE2139DEBB00D32391 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		498D2DB02139E10400D32391 /* UIViewController+Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Error.swift"; sourceTree = "<group>"; };
 		49F75B752139C0DB00392A21 /* Coin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coin.swift; sourceTree = "<group>"; };
 		5D7E9E5E20652D49006EA36E /* CoinWatcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoinWatcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D7E9E6120652D49006EA36E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -109,11 +117,28 @@
 		498D2DA32139DAF100D32391 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				498D2DA42139DCA700D32391 /* SwinjectStoryboard.swift */,
-				498D2DA62139DCB600D32391 /* Decimal+NumberFormatter.swift */,
 				49F75B752139C0DB00392A21 /* Coin.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		498D2DA82139DD7A00D32391 /* Workers */ = {
+			isa = PBXGroup;
+			children = (
+				498D2DA92139DD8900D32391 /* CoinFetchWorker.swift */,
+				498D2DAB2139DD9C00D32391 /* CoinPersistenceWorker.swift */,
+			);
+			path = Workers;
+			sourceTree = "<group>";
+		};
+		498D2DAD2139DEA400D32391 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				498D2DA62139DCB600D32391 /* Decimal+NumberFormatter.swift */,
+				498D2DAE2139DEBB00D32391 /* Result.swift */,
+				498D2DB02139E10400D32391 /* UIViewController+Error.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		5D7E9E5520652D49006EA36E = {
@@ -142,6 +167,9 @@
 			isa = PBXGroup;
 			children = (
 				5D7E9E6120652D49006EA36E /* AppDelegate.swift */,
+				498D2DA42139DCA700D32391 /* SwinjectStoryboard.swift */,
+				498D2DAD2139DEA400D32391 /* Helpers */,
+				498D2DA82139DD7A00D32391 /* Workers */,
 				498D2DA32139DAF100D32391 /* Model */,
 				498D2DA22139DADB00D32391 /* UI */,
 				5D7E9E6D20652D49006EA36E /* Assets.xcassets */,
@@ -245,7 +273,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = Brave;
 				TargetAttributes = {
 					5D7E9E5D20652D49006EA36E = {
@@ -357,11 +385,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				498D2DAC2139DD9C00D32391 /* CoinPersistenceWorker.swift in Sources */,
 				49F75B762139C0DB00392A21 /* Coin.swift in Sources */,
+				498D2DAA2139DD8900D32391 /* CoinFetchWorker.swift in Sources */,
 				498D2DA72139DCB600D32391 /* Decimal+NumberFormatter.swift in Sources */,
 				5D7E9E6220652D49006EA36E /* AppDelegate.swift in Sources */,
 				5D7E9E6520652D49006EA36E /* CoinWatcher.xcdatamodeld in Sources */,
+				498D2DAF2139DEBB00D32391 /* Result.swift in Sources */,
 				5D7E9E6720652D49006EA36E /* MasterViewController.swift in Sources */,
+				498D2DB12139E10400D32391 /* UIViewController+Error.swift in Sources */,
 				5D7E9E6920652D49006EA36E /* DetailViewController.swift in Sources */,
 				498D2DA52139DCA700D32391 /* SwinjectStoryboard.swift in Sources */,
 			);
@@ -432,6 +464,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -439,6 +472,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -489,6 +523,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -496,6 +531,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

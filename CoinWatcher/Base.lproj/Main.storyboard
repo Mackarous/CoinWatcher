@@ -143,6 +143,12 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Coins" id="mcg-gj-tS5"/>
+                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="VG5-9B-lnC">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <connections>
+                            <action selector="refresh" destination="RmS-cx-7mi" eventType="valueChanged" id="okL-Hm-ijU"/>
+                        </connections>
+                    </refreshControl>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="URa-mF-uOM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
