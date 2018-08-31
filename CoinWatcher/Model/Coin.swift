@@ -25,11 +25,3 @@ struct FetchedCoin: Decodable {
         price = Decimal(string: priceString) ?? 0
     }
 }
-
-extension Decimal {
-    var currencyString: String? {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .currency
-        return numberFormatter.string(from: self as NSDecimalNumber)
-    }
-}
