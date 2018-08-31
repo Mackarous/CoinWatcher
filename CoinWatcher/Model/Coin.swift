@@ -16,6 +16,7 @@ struct FetchedCoin: Decodable {
     let id: String
     let name: String
     let price: Decimal
+    var isFavorited = false
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

@@ -13,39 +13,54 @@ final class MasterViewController: UITableViewController {
     private enum DetailNavigationDirection {
         case back, forward
     }
-
+    
     var coinFetchWorker: CoinFetchWorker!
+    var coinPersistenceWorker: CoinPersistenceWorker!
     var coinData = [FetchedCoin]()
-
+    var filteredData: [(title: String, items: [FetchedCoin])] {
+        return [
+            ("Favorites", coinData.filter { $0.isFavorited }),
+            ("Coins", coinData.filter { !$0.isFavorited })
+        ]
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl?.beginRefreshing()
-        loadData()
+        loadData(completion: reloadTableViewData)
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         clearsSelectionOnViewWillAppear = splitViewController!.isCollapsed
         super.viewWillAppear(animated)
     }
-
+    
     // MARK: - Table View
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return coinData.count
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return filteredData.count
     }
-
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return filteredData[section].items.count
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MasterCell.identifier, for: indexPath) as! MasterCell
-        cell.fetchedCoin = coinData[indexPath.row]
+        let fetchedCoin = filteredData[indexPath.section].items[indexPath.row]
+        cell.fetchedCoin = fetchedCoin
+        cell.isFavorited = coinPersistenceWorker.coin(id: fetchedCoin.id)?.isFavorited ?? false
+        cell.didToggleFavorite = { [unowned self] isSelecting in
+            self.toggleFavorite(isSelecting, for: fetchedCoin)
+        }
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let detailVC = storyboard!.instantiateViewController(withIdentifier: "DetailViewController") as! DetailViewController
-        detailVC.fetchedCoin = coinData[indexPath.row]
-        if let selectedRow = tableView.indexPathForSelectedRow?.row {
-            detailVC.canGoBack = selectedRow > 0
-            detailVC.canGoForward = selectedRow < coinData.count - 1
+        detailVC.fetchedCoin = filteredData[indexPath.section].items[indexPath.row]
+        if let selectedIndexPath = tableView.indexPathForSelectedRow {
+            updateDetailCanGoForwardBack(detailVC, selectedIndexPath: selectedIndexPath)
         }
         detailVC.didGoBack = { [unowned self] in
             self.navigateDetail(detailVC, direction: .back)
@@ -60,84 +75,95 @@ final class MasterViewController: UITableViewController {
         self.showDetailViewController(controller, sender: self)
     }
     
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return filteredData[section].title
+    }
+    
     // MARK: - Actions
     
     @IBAction private func refresh() {
-        loadData()
+        loadData(completion: reloadTableViewData)
     }
     
     // MARK: - Private functions
     
-    private func loadData() {
+    private func reloadTableViewData() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.tableView.reloadData()
+            self.refreshControl?.endRefreshing()
+        }
+    }
+    
+    private func loadData(completion: @escaping (() -> Void)) {
         coinFetchWorker.fetchCoins { [unowned self] result in
             switch result {
             case .error(let error):
                 self.presentError(error)
             case .success(let coins):
-                self.coinData = coins
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.tableView.reloadData()
-                    self.refreshControl?.endRefreshing()
+                self.coinData = coins.map { coin in
+                    var coin = coin
+                    coin.isFavorited = self.coinPersistenceWorker.coin(id: coin.id)?.isFavorited ?? false
+                    return coin
                 }
+                completion()
             }
         }
     }
+    
+    private func updateDetailCanGoForwardBack(_ detailVC: DetailViewController, selectedIndexPath: IndexPath) {
+        let isInFirstSection = selectedIndexPath.section == 0
+        detailVC.canGoBack = !isInFirstSection || (isInFirstSection && selectedIndexPath.row > 0)
+        let isInLastSection = selectedIndexPath.section == filteredData.count - 1
+        let lastCount = filteredData[filteredData.count - 1].items.count
+        detailVC.canGoForward = !isInLastSection || (isInLastSection && selectedIndexPath.row < lastCount)
+    }
+    
+    private func toggleFavorite(_ isSelecting: Bool, for fetchedCoin: FetchedCoin) {
+        var deleteSection = 0
+        var insertSection = 0
+        if isSelecting {
+            coinPersistenceWorker.insertNewFavoriteCoin(id: fetchedCoin.id)
+            deleteSection = 1
+            insertSection = 0
+        } else if let coin = coinPersistenceWorker.coin(id: fetchedCoin.id) {
+            coinPersistenceWorker.persistentContainer.viewContext.delete(coin)
+            coinPersistenceWorker.saveContext()
+            deleteSection = 0
+            insertSection = 1
+        }
+        let deleteIndexPath = IndexPath(row: filteredData[deleteSection].items.index(where: { $0.id == fetchedCoin.id })!, section: deleteSection)
+        loadData { [unowned self] in
+            let insertIndexPath = IndexPath(row: self.filteredData[insertSection].items.index(where: { $0.id == fetchedCoin.id })!, section: insertSection)
+            DispatchQueue.main.async {
+                self.tableView.beginUpdates()
+                self.tableView.insertRows(at: [insertIndexPath], with: .automatic)
+                self.tableView.deleteRows(at: [deleteIndexPath], with: .automatic)
+                self.tableView.endUpdates()
+            }
+        }
 
+    }
+    
     private func navigateDetail(_ detailVC: DetailViewController, direction: DetailNavigationDirection) {
-        guard var selectedIndexPath = self.tableView.indexPathForSelectedRow else { return }
+        guard var selectedIndexPath = tableView.indexPathForSelectedRow else { return }
         switch direction {
         case .back:
-            guard selectedIndexPath.row > 0 else { return }
-            selectedIndexPath.row -= 1
+            if selectedIndexPath.section > 0 && selectedIndexPath.row == 0 {
+                selectedIndexPath.section -= 1
+                selectedIndexPath.row = filteredData[selectedIndexPath.section].items.count - 1
+            } else if selectedIndexPath.row > 0 {
+                selectedIndexPath.row -= 1
+            }
         case .forward:
-            guard selectedIndexPath.row < self.coinData.count - 1 else { return }
-            selectedIndexPath.row += 1
+            if selectedIndexPath.section < filteredData.count - 1 && selectedIndexPath.row == filteredData[selectedIndexPath.section].items.count - 1 {
+                selectedIndexPath.section += 1
+                selectedIndexPath.row = 0
+            } else if selectedIndexPath.row < filteredData[selectedIndexPath.section].items.count - 1 {
+                selectedIndexPath.row += 1
+            }
         }
-        self.tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: .top)
-        detailVC.fetchedCoin = self.coinData[selectedIndexPath.row]
-        detailVC.canGoBack = selectedIndexPath.row > 0
-        detailVC.canGoForward = selectedIndexPath.row < coinData.count - 1
-    }
-}
-
-// MARK: - MasterCell
-
-final class MasterCell: UITableViewCell {
-    static let identifier = String(describing: MasterCell.self)
-    
-    var fetchedCoin: FetchedCoin! {
-        didSet {
-            nameLabel.text = fetchedCoin.name
-            priceLabel.text = fetchedCoin.price.currencyString
-            setSelection(isFavorited)
-        }
-    }
-    
-    @IBOutlet private var nameLabel: UILabel!
-    @IBOutlet private var priceLabel: UILabel!
-    @IBOutlet private var favoriteButton: UIButton!
-    
-    private var isFavorited: Bool {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        guard let coin = appDelegate.coin(id: fetchedCoin.id) else { return false }
-        return coin.isFavorited
-    }
-    
-    private func setSelection(_ isSelecting: Bool) {
-        favoriteButton.isSelected = isSelecting
-        favoriteButton.tintColor = isSelecting ? .red : .lightGray
-    }
-    
-    @IBAction private func favoriteSelected(_ sender: UIButton) {
-        let isSelecting = !sender.isSelected
-        setSelection(isSelecting)
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if isSelecting {
-            appDelegate.insertNewFavoriteCoin(id: fetchedCoin.id)
-        } else if let coin = appDelegate.coin(id: fetchedCoin.id) {
-            appDelegate.persistentContainer.viewContext.delete(coin)
-            appDelegate.saveContext()
-        }
+        tableView.selectRow(at: selectedIndexPath, animated: true, scrollPosition: .top)
+        detailVC.fetchedCoin = filteredData[selectedIndexPath.section].items[selectedIndexPath.row]
+        updateDetailCanGoForwardBack(detailVC, selectedIndexPath: selectedIndexPath)
     }
 }

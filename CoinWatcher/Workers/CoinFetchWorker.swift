@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CoinFetchWorker {
+final class CoinFetchWorker {
     typealias Completion = (Result<[FetchedCoin]>) -> Void
     enum Error: Swift.Error {
         case malformedURL
