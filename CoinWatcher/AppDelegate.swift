@@ -12,28 +12,14 @@ import CoreData
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
 
-    var window: UIWindow? = UIWindow(frame: UIScreen.main.bounds)
+    var window: UIWindow?
 
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
-        let splitVC = UISplitViewController()
-        let masterVC = UINavigationController(rootViewController: MasterViewController())
-        let detailVC = UINavigationController(rootViewController: DetailViewController())
-        splitVC.viewControllers = [masterVC, detailVC]
+        guard let splitVC = window?.rootViewController as? UISplitViewController else { return false }
         splitVC.delegate = self
-        
-        detailVC.topViewController!.navigationItem.leftBarButtonItem = splitVC.displayModeButtonItem
-        
-        window!.rootViewController = splitVC
-        
+        splitVC.preferredDisplayMode = .allVisible
         return true
     }
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        window!.makeKeyAndVisible()
-        return true
-    }
-
 
     func applicationWillTerminate(_ application: UIApplication) {
         self.saveContext()
@@ -45,10 +31,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return false
     }
 
-    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController:UIViewController, onto primaryViewController:UIViewController) -> Bool {
-        guard let secondaryAsNavController = secondaryViewController as? UINavigationController else { return false }
-        guard let topAsDetailController = secondaryAsNavController.topViewController as? DetailViewController else { return false }
-        if topAsDetailController.detailItem == nil {
+    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController:UIViewController) -> Bool {
+        guard let navController = secondaryViewController as? UINavigationController else { return false }
+        guard let detailViewController = navController.viewControllers.first as? DetailViewController else { return false }
+        if detailViewController.fetchedCoin == nil {
             // Return true to indicate that we have handled the collapse (by doing nothing)
             return true
         }
@@ -69,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     // MARK: - Core Data Saving support
 
-    func saveContext () {
+    func saveContext() {
         let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
@@ -95,6 +81,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         new.isFavorited = true
         saveContext()
     }
-
 }
-

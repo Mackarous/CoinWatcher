@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		498B2D212139BA3B004CF5ED /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 498B2D1F2139BA3B004CF5ED /* Main.storyboard */; };
 		5D7E9E6220652D49006EA36E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7E9E6120652D49006EA36E /* AppDelegate.swift */; };
 		5D7E9E6520652D49006EA36E /* CoinWatcher.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5D7E9E6320652D49006EA36E /* CoinWatcher.xcdatamodeld */; };
 		5D7E9E6720652D49006EA36E /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D7E9E6620652D49006EA36E /* MasterViewController.swift */; };
@@ -35,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		498B2D202139BA3B004CF5ED /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		5D7E9E5E20652D49006EA36E /* CoinWatcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoinWatcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D7E9E6120652D49006EA36E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5D7E9E6420652D49006EA36E /* CoinWatcher.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoinWatcher.xcdatamodel; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				5D7E9E6620652D49006EA36E /* MasterViewController.swift */,
 				5D7E9E6820652D49006EA36E /* DetailViewController.swift */,
 				5D7E9E6D20652D49006EA36E /* Assets.xcassets */,
+				498B2D1F2139BA3B004CF5ED /* Main.storyboard */,
 				5D7E9E6F20652D49006EA36E /* LaunchScreen.storyboard */,
 				5D7E9E7220652D49006EA36E /* Info.plist */,
 				5D7E9E6320652D49006EA36E /* CoinWatcher.xcdatamodeld */,
@@ -235,6 +238,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				498B2D212139BA3B004CF5ED /* Main.storyboard in Resources */,
 				5D7E9E7120652D49006EA36E /* LaunchScreen.storyboard in Resources */,
 				5D7E9E6E20652D49006EA36E /* Assets.xcassets in Resources */,
 			);
@@ -300,6 +304,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		498B2D1F2139BA3B004CF5ED /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				498B2D202139BA3B004CF5ED /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		5D7E9E6F20652D49006EA36E /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
