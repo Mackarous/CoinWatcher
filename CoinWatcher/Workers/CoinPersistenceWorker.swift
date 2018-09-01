@@ -51,4 +51,9 @@ final class CoinPersistenceWorker {
         saveContext()
     }
 
+    func removeFavoriteCoin(id: String) {
+        guard let coin = coin(id: id) else { return }
+        persistentContainer.viewContext.delete(coin)
+        saveContext()
+    }
 }
