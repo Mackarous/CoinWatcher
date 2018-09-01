@@ -8,11 +8,17 @@
 
 import Foundation
 
-final class CoinFetchWorker {
+struct CoinFetchWorker {
     typealias Completion = (Result<[FetchedCoin]>) -> Void
+    
     enum Error: Swift.Error {
         case malformedURL
-        case unknown
+    }
+    
+    private let network: Network
+    
+    public init(network: Network) {
+        self.network = network
     }
     
     func fetchCoins(completion: @escaping Completion) {
@@ -20,20 +26,18 @@ final class CoinFetchWorker {
             completion(.error(Error.malformedURL))
             return
         }
-        let task = URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
+        network.fetchData(from: url) { result in
+            switch result {
+            case .error(let error):
                 completion(.error(error))
-            } else if let data = data {
+            case .success(let data):
                 do {
                     let coins = try JSONDecoder().decode([FetchedCoin].self, from: data)
                     completion(.success(coins))
                 } catch {
                     completion(.error(error))
                 }
-            } else {
-                completion(.error(Error.unknown))
             }
         }
-        task.resume()
     }
 }

@@ -10,7 +10,14 @@ import SwinjectStoryboard
 
 extension SwinjectStoryboard {
     @objc class func setup() {
-        defaultContainer.register(CoinFetchWorker.self) { _ in CoinFetchWorker() }
+        defaultContainer.register(Network.self) { _ in
+            URLSessionNetwork()
+        }
+        
+        defaultContainer.register(CoinFetchWorker.self) { r in
+            let network = r.resolve(Network.self)!
+            return CoinFetchWorker(network: network)
+        }
         
         defaultContainer
             .register(CoinPersistenceWorker.self) { _ in CoinPersistenceWorker() }
