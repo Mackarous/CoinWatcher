@@ -24,6 +24,11 @@ final class MasterViewController: UITableViewController {
         ]
     }
     
+    private var detailViewController: DetailViewController? {
+        let navController = self.splitViewController?.viewControllers.last as? UINavigationController
+        return navController?.visibleViewController as? DetailViewController
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl?.beginRefreshing()
@@ -55,7 +60,7 @@ final class MasterViewController: UITableViewController {
         guard let detailVC = storyboard?.instantiateViewController(withIdentifier: "DetailViewController") as? DetailViewController else { return }
         configureDetailViewController(detailVC, with: filteredData[indexPath.section].items[indexPath.row])
         let controller = UINavigationController(rootViewController: detailVC)
-        self.showDetailViewController(controller, sender: self)
+        showDetailViewController(controller, sender: self)
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -139,11 +144,13 @@ final class MasterViewController: UITableViewController {
     ///   - detailVC: The `DetailViewController` that needs UI updating
     ///   - selectedIndexPath: The currently selected index path in the tableview
     private func updateDetailCanGoForwardBack(_ detailVC: DetailViewController, selectedIndexPath: IndexPath) {
-        let isInFirstSection = selectedIndexPath.section == 0
-        detailVC.canGoBack = !isInFirstSection || (isInFirstSection && selectedIndexPath.row > 0)
-        let isInLastSection = selectedIndexPath.section == filteredData.count - 1
-        let lastCount = filteredData[filteredData.count - 1].items.count
-        detailVC.canGoForward = !isInLastSection || (isInLastSection && selectedIndexPath.row < lastCount)
+        let isInTopRow = selectedIndexPath.row == 0
+        let previousSectionIsEmpty = selectedIndexPath.section == 0 || filteredData[selectedIndexPath.section - 1].items.isEmpty
+        detailVC.canGoBack = !isInTopRow || !(isInTopRow && previousSectionIsEmpty)
+        
+        let isInBottomRow = selectedIndexPath.row == filteredData[selectedIndexPath.section].items.count - 1
+        let nextSectionIsEmpty = selectedIndexPath.section == filteredData.count - 1 || filteredData[selectedIndexPath.section + 1].items.isEmpty
+        detailVC.canGoForward = !isInBottomRow || !(isInBottomRow && nextSectionIsEmpty)
     }
     
     /// Toggles a coin as a favorite. This function will either save or remove the
@@ -174,9 +181,11 @@ final class MasterViewController: UITableViewController {
                 }
                 self.tableView.deleteRows(at: [deleteIndexPath], with: .automatic)
                 self.tableView.endUpdates()
-                guard let navController = self.splitViewController?.viewControllers.last as? UINavigationController else { return }
-                guard let detailVC = navController.visibleViewController as? DetailViewController else { return }
-                guard let selectedIndexPath = self.tableView.indexPathForSelectedRow else { return }
+                guard let detailVC = self.detailViewController else { return }
+                guard let selectedIndexPath = self.tableView.indexPathForSelectedRow else {
+                    detailVC.fetchedCoin = nil
+                    return
+                }
                 self.updateDetailCanGoForwardBack(detailVC, selectedIndexPath: selectedIndexPath)
             }
         }

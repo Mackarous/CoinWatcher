@@ -30,7 +30,10 @@ class DetailViewController: UIViewController {
     private func configureView() {
         // Update the user interface with the detail item.
         loadViewIfNeeded()
-        guard let coin = fetchedCoin else { return }
+        guard let coin = fetchedCoin else {
+            stackView.isHidden = true
+            return
+        }
         nameLabel.text = coin.name
         priceLabel.text = coin.price.currencyString
         stackView.isHidden = false
